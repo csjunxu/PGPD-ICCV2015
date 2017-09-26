@@ -18,7 +18,7 @@
 % itr (optional): number of iteration. (default: 3)
 %
 %Example:
-% img = double(imread('img.png'));
+% img = double(imread('img.png')); %scale is 0 - 255
 % nlevel = NoiseLevel(img);
 %
 %Reference:

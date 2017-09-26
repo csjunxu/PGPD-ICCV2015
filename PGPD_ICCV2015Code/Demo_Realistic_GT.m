@@ -1,6 +1,7 @@
 %--------------------------------------------------------------------------
 clear;
 addpath('model');
+addpath('NoiseEstimation');
 % GT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2017\DJI_Results\Real_MeanImage\';
 % GT_fpath = fullfile(GT_Original_image_dir, '*.JPG');
 % TT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2017\DJI_Results\Real_NoisyImage\';
@@ -36,8 +37,8 @@ PSNR = [];
 SSIM = [];
 RunTime = [];
 for i = 1 : im_num
-    IM =   double(imread( fullfile(TT_Original_image_dir,TT_im_dir(i).name) ));
-    IM_GT = double(imread(fullfile(GT_Original_image_dir, GT_im_dir(i).name)));
+    IM =   im2double(imread( fullfile(TT_Original_image_dir,TT_im_dir(i).name) ));
+    IM_GT = im2double(imread(fullfile(GT_Original_image_dir, GT_im_dir(i).name)));
     % S = regexp(TT_im_dir(i).name, '\.', 'split');
     IMname = TT_im_dir(i).name(1:end-9);
     [h,w,ch] = size(IM);
@@ -45,9 +46,10 @@ for i = 1 : im_num
     IMout = zeros(size(IM));
     for cc = 1:ch
         %% set parameters
-        params.x = IM(:,:,cc);
-        nSig = NoiseEstimation(IM(:, :, cc), 8);
-        [par, model]  =  Parameters_Setting( nSig );
+        nSig = NoiseEstimation(IM(:, :, cc)*255, 8);
+        [par, model]  =  Parameters_Setting( nSig );   
+        par.I = IM_GT(:,:,cc);
+        par.nim = IM(:,:,cc);
         %% denoising
         [IMoutcc,par]  =  PGPD_Denoising(par,model);
         IMout(:,:,cc) = IMoutcc;
