@@ -141,7 +141,3 @@ for  i  =  1 :par.lenr
         nDCnlX(:,(off1-1)*par.nlsp+1:off1*par.nlsp) = bsxfun(@minus,temp,DC(:,off1));
     end
 end
-
-   indc(indc == par.SelfIndex(i)) = indc(1); % added on 08/01/2017
-    indc(1) = par.SelfIndex(i); % to make sure the first one of indc equals to off
-    blk_arr(:, i) = indc;

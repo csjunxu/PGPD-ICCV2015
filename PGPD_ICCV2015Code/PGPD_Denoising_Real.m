@@ -1,19 +1,20 @@
 %------------------------------------------------------------------------------------------------
-% PGPD_Denoising - Denoising by Weighted Sparse Coding 
+% PGPD_Denoising - Denoising by Weighted Sparse Coding
 %                                with Learned Patch Group Prior.
 % CalNonLocal - Calculate the non-local similar patches (Noisy Patch Groups)
 % Author:  Jun Xu, csjunxu@comp.polyu.edu.hk
 %              The Hong Kong Polytechnic University
 %------------------------------------------------------------------------------------------------
-function  [im_out,par] = PGPD_Denoising(par,model)
+function  [im_out,par] = PGPD_Denoising_Real(par,model)
 im_out = par.nim;
 par.nSig0 = par.nSig;
-[h,  w] = size(im_out);
+[h,  w, ch] = size(im_out);
 par.maxr = h-par.ps+1;
 par.maxc = w-par.ps+1;
 par.maxrc = par.maxr * par.maxc;
 par.h = h;
 par.w = w;
+par.ch = ch;
 r = 1:par.step:par.maxr;
 par.r = [r r(end)+1:par.maxr];
 c = 1:par.step:par.maxc;
@@ -22,6 +23,8 @@ par.lenr = length(par.r);
 par.lenc = length(par.c);
 par.lenrc = par.lenr*par.lenc;
 par.ps2 = par.ps^2;
+par.ps2ch = par.ps2*par.ch;
+
 for ite = 1 : par.IteNum
     % iterative regularization
     im_out = im_out + par.delta*(par.nim - im_out);
@@ -33,17 +36,17 @@ for ite = 1 : par.IteNum
         par.nSig = sqrt( abs( par.nSig0^2 - dif ) )*par.eta;
     end
     % search non-local patch groups
-    [nDCnlX,blk_arr,DC,par] = CalNonLocal( im_out, par);
+    [nDCnlX,blk_arr,DC,par] = Image2PGs( im_out, par);
     % Gaussian dictionary selection by MAP
     if mod(ite-1,2) == 0
-        PYZ = zeros(model.nmodels,size(DC,2));
+        PYZ = zeros(model.nmodels,size(DC,2)/par.nlsp);
         sigma2I = par.nSig^2*eye(par.ps2);
         for i = 1:model.nmodels
             sigma = model.covs(:,:,i) + sigma2I;
             [R,~] = chol(sigma);
             Q = R'\nDCnlX;
             TempPYZ = - sum(log(diag(R))) - dot(Q,Q,1)/2;
-            TempPYZ = reshape(TempPYZ,[par.nlsp size(DC,2)]);
+            TempPYZ = reshape(TempPYZ,[par.nlsp size(DC,2)/par.nlsp]);
             PYZ(i,:) = sum(TempPYZ);
         end
         % find the most likely component for each patch group
@@ -62,16 +65,14 @@ for ite = 1 : par.IteNum
         cls =   dicidx(idx(1));
         D   =   par.D(:,:, cls);
         S    = par.S(:,cls);
-        lambdaM = repmat(par.c1*par.nSig^2./ (sqrt(S)+eps ),[1 par.nlsp]);
-        for i = 1:size(idx,1)
-            Y = nDCnlX(:,(idx(i)-1)*par.nlsp+1:idx(i)*par.nlsp);
-            b = D'*Y;
-            % soft threshold
-            alpha = sign(b).*max(abs(b)-lambdaM/2,0);
-            % add DC components and aggregation
-            X_hat(:,blk_arr(:,idx(i))) = X_hat(:,blk_arr(:,idx(i)))+bsxfun(@plus,D*alpha, DC(:,idx(i)));
-            W(:,blk_arr(:,idx(i))) = W(:,blk_arr(:,idx(i)))+ones(par.ps2,par.nlsp);
-        end
+        Y = nDCnlX(:,idx);
+        lambdaM = repmat(par.c1*par.nSig^2./ (sqrt(S)+eps ),[1 length(idx)]);
+        b = D'*Y;
+        % soft threshold
+        alpha = sign(b).*max(abs(b)-lambdaM/2,0);
+        % add DC components and aggregation
+        X_hat(:,blk_arr(:,idx)) = X_hat(:,blk_arr(:,idx))+bsxfun(@plus,D*alpha, DC(:,idx));
+        W(:,blk_arr(:,idx)) = W(:,blk_arr(:,idx))+ones(par.ps2ch, length(idx));
     end
     % Reconstruction
     im_out = zeros(h,w,'single');
@@ -141,7 +142,3 @@ for  i  =  1 :par.lenr
         nDCnlX(:,(off1-1)*par.nlsp+1:off1*par.nlsp) = bsxfun(@minus,temp,DC(:,off1));
     end
 end
-
-   indc(indc == par.SelfIndex(i)) = indc(1); % added on 08/01/2017
-    indc(1) = par.SelfIndex(i); % to make sure the first one of indc equals to off
-    blk_arr(:, i) = indc;

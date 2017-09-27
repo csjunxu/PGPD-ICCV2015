@@ -51,7 +51,7 @@ for i = 1 : im_num
         par.I = IM_GT(:,:,cc);
         par.nim = IM(:,:,cc);
         %% denoising
-        [IMoutcc,par]  =  PGPD_Denoising(par,model);
+        [IMoutcc,par]  =  PGPD_Denoising_Real(par,model);
         IMout(:,:,cc) = IMoutcc;
     end
     RunTime = [RunTime etime(clock,time0)];
