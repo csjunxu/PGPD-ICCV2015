@@ -52,7 +52,7 @@ for i = 1 : im_num
         par.nim = IM(:,:,cc);
         %% denoising
         [IMoutcc,par]  =  PGPD_Denoising_Real(par,model);
-        IMout(:,:,cc) = IMoutcc;
+        IMout(:,:,cc) = IMoutcc; 
     end
     RunTime = [RunTime etime(clock,time0)];
     fprintf('Total elapsed time = %f s\n', (etime(clock,time0)) );
