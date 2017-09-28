@@ -1,10 +1,3 @@
-%------------------------------------------------------------------------------------------------
-% PGPD_Denoising - Denoising by Weighted Sparse Coding
-%                                with Learned Patch Group Prior.
-% CalNonLocal - Calculate the non-local similar patches (Noisy Patch Groups)
-% Author:  Jun Xu, csjunxu@comp.polyu.edu.hk
-%              The Hong Kong Polytechnic University
-%------------------------------------------------------------------------------------------------
 function  [im_out,par] = PGPD_Denoising_Real(par,model)
 im_out = par.nim;
 par.nSig0 = par.nSig;
@@ -58,8 +51,8 @@ for ite = 1 : par.IteNum
         seg = [0; seq; length(dicidx)];
     end
     % Weighted Sparse Coding
-    X_hat = zeros(par.ps2,par.maxrc,'single');
-    W = zeros(par.ps2,par.maxrc,'single');
+    X_hat = zeros(par.ps2,par.maxrc,'double');
+    W = zeros(par.ps2,par.maxrc,'double');
     for   j = 1:length(seg)-1
         idx =   s_idx(seg(j)+1:seg(j+1));
         cls =   dicidx(idx(1));
@@ -75,8 +68,8 @@ for ite = 1 : par.IteNum
         W(:,blk_arr(:,idx)) = W(:,blk_arr(:,idx))+ones(par.ps2ch, length(idx));
     end
     % Reconstruction
-    im_out = zeros(h,w,'single');
-    im_wei = zeros(h,w,'single');
+    im_out = zeros(h,w,'double');
+    im_wei = zeros(h,w,'double');
     r = 1:par.maxr;
     c = 1:par.maxc;
     k = 0;
@@ -87,7 +80,7 @@ for ite = 1 : par.IteNum
             im_wei(r-1+i,c-1+j)  =  im_wei(r-1+i,c-1+j) + reshape( W(k,:)', [par.maxr par.maxc]);
         end
     end
-    im_out  =  im_out./im_wei;
+    im_out  =  im_out./(im_wei+eps);
     % calculate the PSNR and SSIM
     PSNR =   csnr( im_out*255, par.I*255, 0, 0 );
     SSIM      =  cal_ssim( im_out*255, par.I*255, 0, 0 );
