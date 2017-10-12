@@ -51,8 +51,8 @@ for ite = 1 : par.IteNum
         seg = [0; seq; length(dicidx)];
     end
     % Weighted Sparse Coding
-    X_hat = zeros(par.ps2,par.maxrc,'double');
-    W_hat = zeros(par.ps2,par.maxrc,'double');
+    X_hat = zeros(par.ps2ch,par.maxrc,'double');
+    W_hat = zeros(par.ps2ch,par.maxrc,'double');
     for   j = 1:length(seg)-1
         idx =   s_idx(seg(j)+1:seg(j+1));
         cls =   dicidx(idx(1));
@@ -68,7 +68,7 @@ for ite = 1 : par.IteNum
         W_hat(:,blk_arr(:,idx)) = W_hat(:,blk_arr(:,idx))+ones(par.ps2ch, length(idx));
     end
     % Reconstruction
-    im_out = PGs2Image(Y_hat,W_hat,par);
+    im_out = PGs2Image(X_hat,W_hat,par);
     % calculate the PSNR and SSIM
     PSNR =   csnr( im_out*255, par.I*255, 0, 0 );
     SSIM      =  cal_ssim( im_out*255, par.I*255, 0, 0 );
