@@ -31,25 +31,28 @@ for ite = 1 : par.IteNum
     % search non-local patch groups
     [nDCnlX,blk_arr,DC,par] = Image2PGs( im_out, par);
     % Gaussian dictionary selection by MAP
-    if mod(ite-1,2) == 0
-        PYZ = zeros(model.nmodels,size(DC,2)/par.nlsp);
-        sigma2I = par.nSig^2*eye(par.ps2);
+        if mod(ite-1,2) == 0
+        %% GMM: full posterior calculation
+        nPG = size(nDCnlX,2)/par.nlsp; % number of PGs
+        PYZ = zeros(model.nmodels,nPG);
         for i = 1:model.nmodels
-            sigma = model.covs(:,:,i) + sigma2I;
+            sigma = model.covs(:,:,i);
             [R,~] = chol(sigma);
             Q = R'\nDCnlX;
             TempPYZ = - sum(log(diag(R))) - dot(Q,Q,1)/2;
-            TempPYZ = reshape(TempPYZ,[par.nlsp size(DC,2)/par.nlsp]);
+            TempPYZ = reshape(TempPYZ,[par.nlsp nPG]);
             PYZ(i,:) = sum(TempPYZ);
         end
-        % find the most likely component for each patch group
+        %% find the most likely component for each patch group
         [~,dicidx] = max(PYZ);
-        dicidx = dicidx';
+        dicidx=repmat(dicidx, [par.nlsp 1]);
+        dicidx = dicidx(:);
         [idx,  s_idx] = sort(dicidx);
         idx2 = idx(1:end-1) - idx(2:end);
         seq = find(idx2);
         seg = [0; seq; length(dicidx)];
-    end
+        end
+    
     % Weighted Sparse Coding
     X_hat = zeros(par.ps2ch,par.maxrc,'double');
     W_hat = zeros(par.ps2ch,par.maxrc,'double');
