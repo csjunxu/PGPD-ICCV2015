@@ -45,8 +45,9 @@ for i = 1 : im_num
     time0 = clock;
     IMout = zeros(size(IM));
     for cc = 1:ch
-        %% set parameters
+        %% noise estimation
         nSig = NoiseEstimation(IM(:, :, cc)*255, 8);
+        %% set parameters
         [par, model]  =  Parameters_Setting( nSig );
         par.I = IM_GT(:,:,cc);
         par.nim = IM(:,:,cc);
@@ -57,8 +58,8 @@ for i = 1 : im_num
     end
     RunTime = [RunTime etime(clock,time0)];
     fprintf('Total elapsed time = %f s\n', (etime(clock,time0)) );
-    PSNR = [PSNR csnr( uint8(IMout), uint8(IM_GT), 0, 0 )];
-    SSIM = [SSIM cal_ssim( uint8(IMout), uint8(IM_GT), 0, 0 )];
+    PSNR = [PSNR csnr( IMout*255, IM_GT*255, 0, 0 )];
+    SSIM = [SSIM cal_ssim( IMout*255, IM_GT*255, 0, 0 )];
     fprintf('The final PSNR = %2.4f, SSIM = %2.4f. \n', PSNR(end), SSIM(end));
     imwrite(IMout, [write_sRGB_dir '/' method '_our_' IMname '.png']);
 end
