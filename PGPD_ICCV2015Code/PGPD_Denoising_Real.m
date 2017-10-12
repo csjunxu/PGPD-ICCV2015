@@ -52,7 +52,7 @@ for ite = 1 : par.IteNum
     end
     % Weighted Sparse Coding
     X_hat = zeros(par.ps2,par.maxrc,'double');
-    W = zeros(par.ps2,par.maxrc,'double');
+    W_hat = zeros(par.ps2,par.maxrc,'double');
     for   j = 1:length(seg)-1
         idx =   s_idx(seg(j)+1:seg(j+1));
         cls =   dicidx(idx(1));
@@ -65,22 +65,10 @@ for ite = 1 : par.IteNum
         alpha = sign(b).*max(abs(b)-lambdaM/2,0);
         % add DC components and aggregation
         X_hat(:,blk_arr(:,idx)) = X_hat(:,blk_arr(:,idx))+bsxfun(@plus,D*alpha, DC(:,idx));
-        W(:,blk_arr(:,idx)) = W(:,blk_arr(:,idx))+ones(par.ps2ch, length(idx));
+        W_hat(:,blk_arr(:,idx)) = W_hat(:,blk_arr(:,idx))+ones(par.ps2ch, length(idx));
     end
     % Reconstruction
-    im_out = zeros(h,w,'double');
-    im_wei = zeros(h,w,'double');
-    r = 1:par.maxr;
-    c = 1:par.maxc;
-    k = 0;
-    for i = 1:par.ps
-        for j = 1:par.ps
-            k = k+1;
-            im_out(r-1+i,c-1+j)  =  im_out(r-1+i,c-1+j) + reshape( X_hat(k,:)', [par.maxr par.maxc]);
-            im_wei(r-1+i,c-1+j)  =  im_wei(r-1+i,c-1+j) + reshape( W(k,:)', [par.maxr par.maxc]);
-        end
-    end
-    im_out  =  im_out./(im_wei+eps);
+    im_out = PGs2Image(Y_hat,W_hat,par);
     % calculate the PSNR and SSIM
     PSNR =   csnr( im_out*255, par.I*255, 0, 0 );
     SSIM      =  cal_ssim( im_out*255, par.I*255, 0, 0 );
