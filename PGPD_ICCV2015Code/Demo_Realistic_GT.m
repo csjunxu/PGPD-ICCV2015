@@ -44,6 +44,7 @@ for i = 1 : im_num
     [h,w,ch] = size(IM);
     time0 = clock;
     IMout = zeros(size(IM));
+    fprintf('The initial PSNR = %2.4f, SSIM = %2.4f. \n', csnr(IM_GT*255, IM*255, 0, 0 ), cal_ssim(IM_GT*255, IM*255, 0, 0 ));
     for cc = 1:ch
         %% noise estimation
         nSig = NoiseEstimation(IM(:, :, cc)*255, 8);
@@ -51,7 +52,6 @@ for i = 1 : im_num
         [par, model]  =  Parameters_Setting( nSig );
         par.I = IM_GT(:,:,cc);
         par.nim = IM(:,:,cc);
-        fprintf('The initial PSNR = %2.4f, SSIM = %2.4f. \n', csnr(IM_GT(:,:,cc)*255, IM(:,:,cc)*255, 0, 0 ), cal_ssim(IM_GT(:,:,cc)*255, IM(:,:,cc)*255, 0, 0 ));
         %% denoising
         [IMoutcc,par]  =  PGPD_Denoising_Real(par,model);
         IMout(:,:,cc) = IMoutcc;

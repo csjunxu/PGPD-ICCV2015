@@ -17,7 +17,7 @@ par.lenc = length(par.c);
 par.lenrc = par.lenr*par.lenc;
 par.ps2 = par.ps^2;
 par.ps2ch = par.ps2*par.ch;
-
+fprintf('The initial PSNR = %2.4f, SSIM = %2.4f. \n', csnr(par.nim*255, par.I*255, 0, 0 ), cal_ssim(par.nim*255, par.I*255, 0, 0 ));
 for ite = 1 : par.IteNum
     % iterative regularization
     im_out = im_out + par.delta*(par.nim - im_out);
