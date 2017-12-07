@@ -14,18 +14,23 @@ TT_fpath = fullfile(TT_Original_image_dir, '*real.png');
 % GT_fpath = fullfile(GT_Original_image_dir, '*.JPG');
 % TT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\our_Results\Real_NoisyImage\';
 % TT_fpath = fullfile(TT_Original_image_dir, '*.JPG');
-% GT_Original_image_dir = 'C:/Users/csjunxu/Desktop/RID_Dataset/RealisticImage/';
-% GT_fpath = fullfile(GT_Original_image_dir, '*mean.JPG');
-% TT_Original_image_dir = 'C:/Users/csjunxu/Desktop/RID_Dataset/RealisticImage/';
-% TT_fpath = fullfile(TT_Original_image_dir, '*real.JPG');
+GT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\PolyU\';
+GT_fpath = fullfile(GT_Original_image_dir, '*mean.JPG');
+TT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\PolyU\';
+TT_fpath = fullfile(TT_Original_image_dir, '*real.JPG');
+GT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\PolyU\';
+GT_fpath = fullfile(GT_Original_image_dir, '*mean.JPG');
+TT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\PolyU\';
+TT_fpath = fullfile(TT_Original_image_dir, '*real.JPG');
+
 
 GT_im_dir  = dir(GT_fpath);
 TT_im_dir  = dir(TT_fpath);
 im_num = length(TT_im_dir);
 
 method = 'PGPD';
-dataset = 'cc';
-write_MAT_dir = ['C:/Users/csjunxu/Desktop/CVPR2018 Denoising/cc_Results/'];
+dataset = 'dnd2017';
+write_MAT_dir = ['C:/Users/csjunxu/Desktop/CVPR2018 Denoising/' dataset '_Results/'];
 write_sRGB_dir = [write_MAT_dir method];
 if ~isdir(write_sRGB_dir)
     mkdir(write_sRGB_dir)
