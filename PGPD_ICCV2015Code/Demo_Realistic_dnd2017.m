@@ -9,15 +9,13 @@ im_num = length(im_dir);
 load 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\dnd_2017\info.mat';
 
 method = 'PGPD';
-dataset = 'dnd2017';
+dataset = 'dnd_2017';
 write_MAT_dir = ['C:/Users/csjunxu/Desktop/CVPR2018 Denoising/' dataset '_Results/'];
 write_sRGB_dir = [write_MAT_dir method];
 if ~isdir(write_sRGB_dir)
     mkdir(write_sRGB_dir)
 end
 
-PSNR = [];
-SSIM = [];
 RunTime = [];
 for i = 1 :im_num
     load(fullfile(Original_image_dir, im_dir(i).name));
