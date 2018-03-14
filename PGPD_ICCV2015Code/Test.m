@@ -21,8 +21,19 @@ for nSig = [150 200]
                 PSNR = [];
                 SSIM = [];
                 for i = 1:im_num
+                    load './model/PG_GMM_9x9_win15_nlsp10_delta0.002_cls33.mat';
                     % set parameters
-                    [par, model]  =  Parameters_Setting( nSig );
+                    par.step = 3;       % the step of two neighbor patches
+                    par.IteNum = 4;  % the iteration number
+                    par.nSig      =   nSig/255;
+                    par.ps = ps;        % patch size
+                    par.nlsp = nlsp;  % number of non-local patches
+                    par.Win = win;   % size of window around the patch
+                    % dictionary and regularization parameter
+                    for i = 1:size(GMM_D,2)
+                        par.D(:,:,i) = reshape(single(GMM_D(:, i)), size(GMM_S,1), size(GMM_S,1));
+                    end
+                    par.S = single(GMM_S);
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
                     % generate noisy image
