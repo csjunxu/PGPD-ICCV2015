@@ -11,17 +11,21 @@ writefilepath  = [writematpath method '/'];
 if ~isdir(writefilepath)
     mkdir(writefilepath);
 end
+load './model/PG_GMM_9x9_win15_nlsp10_delta0.002_cls33.mat';
+% dictionary and regularization parameter
+for i = 1:size(GMM_D,2)
+    par.D(:,:,i) = reshape(single(GMM_D(:, i)), size(GMM_S,1), size(GMM_S,1));
+end
 for nSig = [150 200]
-    for delta = [0 .05 .1]
+    for delta = [0.03]
         par.delta = delta;
-        for c1 = .1:.1:1
+        for c1 = .05:.05:.5
             par.c1 = c1*2*sqrt(2);
-            for eta = 1:.1:2
+            for eta = .8:.1:1.5
                 par.eta=eta;
                 PSNR = [];
                 SSIM = [];
                 for i = 1:im_num
-                    load './model/PG_GMM_9x9_win15_nlsp10_delta0.002_cls33.mat';
                     % set parameters
                     par.step = 3;       % the step of two neighbor patches
                     par.IteNum = 4;  % the iteration number
@@ -29,10 +33,6 @@ for nSig = [150 200]
                     par.ps = ps;        % patch size
                     par.nlsp = nlsp;  % number of non-local patches
                     par.Win = win;   % size of window around the patch
-                    % dictionary and regularization parameter
-                    for i = 1:size(GMM_D,2)
-                        par.D(:,:,i) = reshape(single(GMM_D(:, i)), size(GMM_S,1), size(GMM_S,1));
-                    end
                     par.S = single(GMM_S);
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
@@ -43,8 +43,8 @@ for nSig = [150 200]
                     % PGPD denoising
                     [im_out,par]  =  PGPD_Denoising(par,model);
                     % [im_out,par]  =  PGPD_Denoising_faster(par,model); % faster speed
-                    imname = sprintf([writefilepath method '_nSig' num2str(nSig)  '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '_' im_dir(i).name]);
-                    imwrite(im_out,imname);
+                    %                     imname = sprintf([writefilepath method '_nSig' num2str(nSig)  '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '_' im_dir(i).name]);
+                    %                     imwrite(im_out,imname);
                     % calculate the PSNR and SSIM
                     PSNR = [PSNR csnr( im_out*255, par.I*255, 0, 0 )];
                     SSIM =  [SSIM cal_ssim( im_out*255, par.I*255, 0, 0 )];
