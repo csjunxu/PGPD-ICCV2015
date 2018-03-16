@@ -11,11 +11,6 @@ writefilepath  = [writematpath method '/'];
 if ~isdir(writefilepath)
     mkdir(writefilepath);
 end
-load './model/PG_GMM_9x9_win15_nlsp10_delta0.002_cls33.mat';
-% dictionary and regularization parameter
-for i = 1:size(GMM_D,2)
-    par.D(:,:,i) = reshape(single(GMM_D(:, i)), size(GMM_S,1), size(GMM_S,1));
-end
 for nSig = [200]
     for delta = [0.03]
         par.delta = delta;
@@ -27,13 +22,7 @@ for nSig = [200]
                 SSIM = [];
                 for i = 1:im_num
                     % set parameters
-                    par.step = 3;       % the step of two neighbor patches
-                    par.IteNum = 4;  % the iteration number
-                    par.nSig      =   nSig/255;
-                    par.ps = ps;        % patch size
-                    par.nlsp = nlsp;  % number of non-local patches
-                    par.Win = win;   % size of window around the patch
-                    par.S = single(GMM_S);
+                    [par, model]  =  Parameters_Setting( nSig );
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
                     % generate noisy image
@@ -59,6 +48,8 @@ for nSig = [200]
     end
 end
 
+
+method = 'PPD';
 for nSig = [150 200]
     for delta = [0.03]
         par.delta = delta;
@@ -70,13 +61,8 @@ for nSig = [150 200]
                 SSIM = [];
                 for i = 1:im_num
                     % set parameters
-                    par.step = 3;       % the step of two neighbor patches
-                    par.IteNum = 4;  % the iteration number
-                    par.nSig      =   nSig/255;
-                    par.ps = ps;        % patch size
-                    par.nlsp = 1;  % number of non-local patches
-                    par.Win = win;   % size of window around the patch
-                    par.S = single(GMM_S);
+                    [par, model]  =  Parameters_Setting( nSig );
+                    par.nlsp = 1;
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
                     % generate noisy image
