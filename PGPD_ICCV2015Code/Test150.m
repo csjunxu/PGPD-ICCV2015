@@ -11,7 +11,12 @@ writefilepath  = [writematpath method '/'];
 if ~isdir(writefilepath)
     mkdir(writefilepath);
 end
-for nSig = [200]
+load './model/PG_GMM_9x9_win15_nlsp10_delta0.002_cls33.mat';
+for i = 1:size(GMM_D,2)
+    par.D(:,:,i) = reshape(single(GMM_D(:, i)), size(GMM_S,1), size(GMM_S,1));
+end
+par.S = single(GMM_S);
+for nSig = [150 200]
     for delta = [0.03]
         par.delta = delta;
         for c1 = .05
@@ -22,7 +27,12 @@ for nSig = [200]
                 SSIM = [];
                 for i = 1:im_num
                     % set parameters
-                    [par, model]  =  Parameters_Setting( nSig );
+                    par.step = 3;       % the step of two neighbor patches
+                    par.IteNum = 4;  % the iteration number
+                    par.nSig      =   nSig/255;
+                    par.ps = ps;        % patch size
+                    par.nlsp = nlsp;  % number of non-local patches
+                    par.Win = win;   % size of window around the patch
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
                     % generate noisy image
@@ -41,7 +51,7 @@ for nSig = [200]
                 end
                 mPSNR=mean(PSNR);
                 mSSIM=mean(SSIM);
-                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '.mat']);
+                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '.mat']);
                 save(name,'nSig','PSNR','SSIM','mPSNR','mSSIM');
             end
         end
@@ -50,6 +60,11 @@ end
 
 
 method = 'PPD';
+load './model/PG_GMM_9x9_win15_nlsp10_delta0.002_cls33.mat';
+for i = 1:size(GMM_D,2)
+    par.D(:,:,i) = reshape(single(GMM_D(:, i)), size(GMM_S,1), size(GMM_S,1));
+end
+par.S = single(GMM_S);
 for nSig = [150 200]
     for delta = [0.03]
         par.delta = delta;
@@ -61,7 +76,12 @@ for nSig = [150 200]
                 SSIM = [];
                 for i = 1:im_num
                     % set parameters
-                    [par, model]  =  Parameters_Setting( nSig );
+                    par.step = 3;       % the step of two neighbor patches
+                    par.IteNum = 4;  % the iteration number
+                    par.nSig      =   nSig/255;
+                    par.ps = ps;        % patch size
+                    par.nlsp = nlsp;  % number of non-local patches
+                    par.Win = win;   % size of window around the patch
                     par.nlsp = 1;
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
@@ -81,7 +101,7 @@ for nSig = [150 200]
                 end
                 mPSNR=mean(PSNR);
                 mSSIM=mean(SSIM);
-                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '.mat']);
+                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '.mat']);
                 save(name,'nSig','PSNR','SSIM','mPSNR','mSSIM');
             end
         end
