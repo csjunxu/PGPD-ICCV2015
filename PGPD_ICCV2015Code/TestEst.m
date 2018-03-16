@@ -24,7 +24,7 @@ for nSig = [10 20 30 40 50 75 100]
         par.nim =   par.I + par.nSig*randn(size(par.I));
         fprintf('The initial value of PSNR = %2.4f, SSIM = %2.4f \n', csnr( par.nim*255, par.I*255, 0, 0 ),cal_ssim( par.nim*255, par.I*255, 0, 0 ));
         EstnSig = NoiseEstimation(par.nim*255, 8);
-        par.nSig = EstnSig;
+        par.nSig = EstnSig/255;
         % PGPD denoising
         [im_out,par]  =  PGPD_Denoising(par,model);
         % [im_out,par]  =  PGPD_Denoising_faster(par,model); % faster speed
@@ -57,7 +57,7 @@ for nSig = [10 20 30 40 50 75 100]
         par.nim =   par.I + par.nSig*randn(size(par.I));
         fprintf('The initial value of PSNR = %2.4f, SSIM = %2.4f \n', csnr( par.nim*255, par.I*255, 0, 0 ),cal_ssim( par.nim*255, par.I*255, 0, 0 ));
         EstnSig = NoiseEstimation(par.nim*255, 8);
-        par.nSig = EstnSig;
+        par.nSig = EstnSig/255;
         % PGPD denoising
         [im_out,par]  =  PGPD_Denoising(par,model);
         % [im_out,par]  =  PGPD_Denoising_faster(par,model); % faster speed
