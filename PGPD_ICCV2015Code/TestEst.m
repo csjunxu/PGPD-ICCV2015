@@ -11,7 +11,7 @@ writefilepath  = [writematpath method '/'];
 if ~isdir(writefilepath)
     mkdir(writefilepath);
 end
-for nSig = [10 20 30 40 50 75 100]
+for nSig = [20 30 40 50 75 100]
     PSNR = [];
     SSIM = [];
     for i = 1:im_num
@@ -37,7 +37,7 @@ for nSig = [10 20 30 40 50 75 100]
     end
     mPSNR=mean(PSNR);
     mSSIM=mean(SSIM);
-    name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '.mat']);
+    name = sprintf([writematpath method '_EstnSig' num2str(nSig) '.mat']);
     save(name,'nSig','PSNR','SSIM','mPSNR','mSSIM');
 end
 
@@ -70,6 +70,6 @@ for nSig = [10 20 30 40 50 75 100]
     end
     mPSNR=mean(PSNR);
     mSSIM=mean(SSIM);
-    name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '.mat']);
+    name = sprintf([writematpath method '_EstnSig' num2str(nSig) '.mat']);
     save(name,'nSig','PSNR','SSIM','mPSNR','mSSIM');
 end
