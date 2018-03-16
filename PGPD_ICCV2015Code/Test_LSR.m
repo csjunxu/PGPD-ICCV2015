@@ -5,7 +5,7 @@ fpath = fullfile(Original_image_dir, '*.png');
 im_dir  = dir(fpath);
 im_num = length(im_dir);
 
-method = 'PGPD';
+method = 'PGPD_LSR';
 writematpath = 'C:/Users/csjunxu/Desktop/ThesisComments/Results_AWGN/';
 writefilepath  = [writematpath method '/'];
 if ~isdir(writefilepath)
@@ -15,12 +15,14 @@ load './model/PG_GMM_8x8_win15_nlsp10_delta0.002_cls33.mat';
 for i = 1:size(GMM_D,2)
     par.D(:,:,i) = reshape(single(GMM_D(:, i)), size(GMM_S,1), size(GMM_S,1));
 end
+% dictionary and regularization parameter
+par.S = single(GMM_S);
 for nSig = [50]
     for delta = [.06]
         par.delta = delta;
-        for c1 = .1:.1:5
+        for c1 = .6
             par.c1 = c1*2*sqrt(2);
-            for eta = 1:.1:1.5
+            for eta = 1.3
                 par.eta=eta;
                 PSNR = [];
                 SSIM = [];
@@ -32,8 +34,6 @@ for nSig = [50]
                     par.ps = ps;        % patch size
                     par.nlsp = nlsp;  % number of non-local patches
                     par.Win = win;   % size of window around the patch
-                    % dictionary and regularization parameter
-                    par.S = single(GMM_S);
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
                     % generate noisy image
@@ -43,7 +43,7 @@ for nSig = [50]
                     % PGPD denoising
                     [im_out,par]  =  PGPD_Denoising_LSR(par,model);
                     % [im_out,par]  =  PGPD_Denoising_faster(par,model); % faster speed
-                    imname = sprintf([writefilepath method '_nSig' num2str(nSig)  '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '_' im_dir(i).name]);
+                    imname = sprintf([writefilepath method '_nSig' num2str(nSig)  '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_' im_dir(i).name]);
                     imwrite(im_out,imname);
                     % calculate the PSNR and SSIM
                     PSNR = [PSNR csnr( im_out*255, par.I*255, 0, 0 )];
@@ -52,7 +52,7 @@ for nSig = [50]
                 end
                 mPSNR=mean(PSNR);
                 mSSIM=mean(SSIM);
-                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '.mat']);
+                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '.mat']);
                 save(name,'nSig','PSNR','SSIM','mPSNR','mSSIM');
             end
         end
