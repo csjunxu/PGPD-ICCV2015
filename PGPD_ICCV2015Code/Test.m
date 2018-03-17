@@ -11,6 +11,12 @@ writefilepath  = [writematpath method '/'];
 if ~isdir(writefilepath)
     mkdir(writefilepath);
 end
+load './model/PG_GMM_8x8_win15_nlsp10_delta0.002_cls33.mat';
+% dictionary and regularization parameter
+for i = 1:size(GMM_D,2)
+    par.D(:,:,i) = reshape(single(GMM_D(:, i)), size(GMM_S,1), size(GMM_S,1));
+end
+par.S = single(GMM_S);
 for nSig = [50]
     for delta = [0:.02:.2]
         par.delta = delta;
@@ -22,7 +28,12 @@ for nSig = [50]
                 SSIM = [];
                 for i = 1:im_num
                     % set parameters
-                    [par, model]  =  Parameters_Setting( nSig );
+                    par.step = 3;       % the step of two neighbor patches
+                    par.IteNum = 4;  % the iteration number
+                    par.ps = ps;        % patch size
+                    par.nlsp = nlsp;  % number of non-local patches
+                    par.Win = win;   % size of window around the patch
+                    par.nSig      =   nSig/255;
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
                     % generate noisy image
@@ -50,6 +61,7 @@ for nSig = [50]
     end
 end
 
+
 for nSig = [50]
     for delta = [0.06]
         par.delta = delta;
@@ -61,7 +73,12 @@ for nSig = [50]
                 SSIM = [];
                 for i = 1:im_num
                     % set parameters
-                    [par, model]  =  Parameters_Setting( nSig );
+                    par.step = 3;       % the step of two neighbor patches
+                    par.IteNum = 4;  % the iteration number
+                    par.ps = ps;        % patch size
+                    par.nlsp = nlsp;  % number of non-local patches
+                    par.Win = win;   % size of window around the patch
+                    par.nSig      =   nSig/255;
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
                     % generate noisy image
@@ -101,7 +118,12 @@ for nSig = [50]
                 SSIM = [];
                 for i = 1:im_num
                     % set parameters
-                    [par, model]  =  Parameters_Setting( nSig );
+                    par.step = 3;       % the step of two neighbor patches
+                    par.IteNum = 4;  % the iteration number
+                    par.ps = ps;        % patch size
+                    par.nlsp = nlsp;  % number of non-local patches
+                    par.Win = win;   % size of window around the patch
+                    par.nSig      =   nSig/255;
                     % read clean image
                     par.I = im2double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
                     % generate noisy image

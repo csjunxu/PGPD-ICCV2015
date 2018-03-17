@@ -18,10 +18,6 @@ GT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\PolyU\';
 GT_fpath = fullfile(GT_Original_image_dir, '*mean.JPG');
 TT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\PolyU\';
 TT_fpath = fullfile(TT_Original_image_dir, '*real.JPG');
-GT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\PolyU\';
-GT_fpath = fullfile(GT_Original_image_dir, '*mean.JPG');
-TT_Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\PolyU\';
-TT_fpath = fullfile(TT_Original_image_dir, '*real.JPG');
 
 
 GT_im_dir  = dir(GT_fpath);
