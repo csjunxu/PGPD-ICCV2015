@@ -82,7 +82,7 @@ for nSig = [50]
                 end
                 mPSNR=mean(PSNR);
                 mSSIM=mean(SSIM);
-                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '.mat']);
+                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '.mat']);
                 save(name,'nSig','PSNR','SSIM','mPSNR','mSSIM');
             end
         end
@@ -122,7 +122,7 @@ for nSig = [50]
                 end
                 mPSNR=mean(PSNR);
                 mSSIM=mean(SSIM);
-                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '_delta' num2str(delta) '.mat']);
+                name = sprintf([writematpath method '_nSig' num2str(nSig) '_delta' num2str(delta) '_c1_' num2str(c1) '_eta' num2str(eta) '.mat']);
                 save(name,'nSig','PSNR','SSIM','mPSNR','mSSIM');
             end
         end
