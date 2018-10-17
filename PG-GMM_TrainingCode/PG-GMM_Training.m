@@ -1,4 +1,4 @@
-clear;
+clc,clear;
 TD_path      =   './Kodak24/';
 % Set the parameters
 step = 3;
