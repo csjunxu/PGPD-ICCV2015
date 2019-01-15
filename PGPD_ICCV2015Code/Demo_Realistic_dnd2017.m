@@ -2,15 +2,15 @@
 clear;
 addpath('model');
 addpath('NoiseEstimation');
-Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\dnd_2017\images_srgb\';
+Original_image_dir = 'dnd_2017/images_srgb/';
 fpath = fullfile(Original_image_dir, '*.mat');
 im_dir  = dir(fpath);
 im_num = length(im_dir);
-load 'C:\Users\csjunxu\Desktop\CVPR2018 Denoising\dnd_2017\info.mat';
+load 'dnd_2017/info.mat';
 
 method = 'PGPD';
 dataset = 'dnd_2017';
-write_MAT_dir = ['C:/Users/csjunxu/Desktop/CVPR2018 Denoising/' dataset '_Results/'];
+write_MAT_dir = [dataset '_Results/'];
 write_sRGB_dir = [write_MAT_dir method];
 if ~isdir(write_sRGB_dir)
     mkdir(write_sRGB_dir)
