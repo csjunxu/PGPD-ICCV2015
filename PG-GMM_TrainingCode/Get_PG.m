@@ -1,6 +1,6 @@
 function   [Px, Px0] =  Get_PG( im,win, ps ,nlsp,step,delta)
 
-[h, w]  =  size(im);
+[h, w, ch]  =  size(im);
 S         =  win;
 maxr         =  h-ps+1;
 maxc         =  w-ps+1;
@@ -8,25 +8,29 @@ r         =  [1:step:maxr];
 r         =  [r r(end)+1:maxr];
 c         =  [1:step:maxc];
 c         =  [c c(end)+1:maxc];
-X = zeros(ps^2,maxr*maxc,'single');
+X = zeros(ps^2*ch,maxr*maxc,'single');
 Px0 = [];
 Px = [];
 if nlsp ==1
     k    =  0;
-    for i  = 1:ps
-        for j  = 1:ps
-            k    =  k+1;
-            blk     =  im(r-1+i,c-1+j);
-            Px(k,:) =  blk(:)';
+    for c = 1:ch
+        for i = 1:ps
+            for j  = 1:ps
+                k    =  k+1;
+                blk     =  im(r-1+i,c-1+j,c);
+                Px(k,:) =  blk(:)';
+            end
         end
     end
 else
     k    =  0;
-    for i  = 1:ps
-        for j  = 1:ps
-            k    =  k+1;
-            blk  =  im(i:end-ps+i,j:end-ps+j);
-            X(k,:) =  blk(:)';
+    for c = 1:ch
+        for i  = 1:ps
+            for j  = 1:ps
+                k    =  k+1;
+                blk  =  im(i:end-ps+i,j:end-ps+j,c);
+                X(k,:) =  blk(:)';
+            end
         end
     end
     % Index image
