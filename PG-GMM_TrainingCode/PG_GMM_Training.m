@@ -5,9 +5,9 @@ step    = 3;
 delta   = 0.002;
 win     = 30;
 nlsp    = 10;
-for ps      = [6 7 8 9]
-    for cls_num = [32 64 128 256 512]
-        color = 'RGB'; % RGB or Gray
+color = 'Gray'; % RGB or Gray
+for ps      = [5 6 7 8 9]
+    for cls_num = [16 32 64 128 256 512]
         %%% read natural clean images
         ext         =  {'*.jpg','*.jpeg','*.JPG','*.png','*.bmp'};
         im_dir   =  [];
@@ -18,8 +18,11 @@ for ps      = [6 7 8 9]
         X     =  [];
         X0 = [];
         for  i  =  1:im_num
-            im = single( imread(fullfile(TD_path, im_dir(i).name)) );
-            im = im/255;
+            if strcmp(color,'RGB')==1
+                im = im2double(imread(fullfile(TD_path, im_dir(i).name)));
+            elseif strcmp(color,'Gray')==1
+                im = im2double(rgb2gray(imread(fullfile(TD_path, im_dir(i).name))));
+            end
             [Px, Px0] = Get_PG( im,win, ps ,nlsp,step,delta);
             clear im;
             X0 = [X0 Px0];
@@ -53,7 +56,7 @@ for ps      = [6 7 8 9]
         GMM_D(:,cls_num)    =  P0(:);
         GMM_S(:,cls_num)    =  S0;
         % save PG-GMM model
-        name = sprintf('PG_GMM_%s_%dx%d_win%d_nlsp%d_delta%2.3f_cls%d.mat',color,ps,ps,win,nlsp,delta,cls_num);
+        name = sprintf('/home/csjunxu/Dataset/PG_GMM_%s_%dx%d_win%d_nlsp%d_delta%2.3f_cls%d.mat',color,ps,ps,win,nlsp,delta,cls_num);
         save(name,'model','nlsp','GMM_D','GMM_S','cls_num','delta','ps','win');
     end
 end
