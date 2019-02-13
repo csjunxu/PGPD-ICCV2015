@@ -1,13 +1,3 @@
-%--------------------------------------------------------------------------------------------------
-% This is an implementation of the PGPD algorithm for image denoising.
-% Author:  Jun Xu, csjunxu@comp.polyu.edu.hk
-%              The Hong Kong Polytechnic University
-% Please refer to the following paper if you use this code:
-% Jun Xu, Lei Zhang, Wangmeng Zuo, David Zhang, and Xiangchu Feng,
-% Patch Group Based Nonlocal Self-Similarity Prior Learning for Image Denoising.
-% IEEE Int. Conf. Computer Vision (ICCV), Santiago, Chile, December 2015.
-% Please see the file License.txt for the license governing this code.
-%--------------------------------------------------------------------------------------------------
 clear;
 Original_image_dir  =    '/home/csjunxu/Github/PGPD_Results/kodak24/';
 fpath = fullfile(Original_image_dir, '*.png');
@@ -43,8 +33,8 @@ for delta = 0
     par.delta = delta;
     for c1 = .6:.1:1.5
         par.c1 = c1;
-        for etaR = 1
-            for etaG = 1
+        for etaR = .5
+            for etaG = .5 
                 for etaB = 1:-.1:.1
                     par.eta=[etaR etaG etaB];
                     % record all the results in each iteration
