@@ -44,7 +44,7 @@ for delta = 0
     for c1 = .1:.1:1
         par.c1 = c1*2*sqrt(2);
         for eta1 = .1:.1:1
-            for eta2 = .1:.1:1
+            for eta2 = .1:.1:1 
                 for eta3 = .1:.1:1
                     par.eta=[eta1 eta2 eta3];
                     % record all the results in each iteration
@@ -61,7 +61,7 @@ for delta = 0
                         for c = 1:ch
                             randn('seed',0);
                             par.nim(:, :, c) = par.I(:, :, c) + par.nSig0(c) * randn(size(par.I(:, :, c)));
-                        end
+                        end 
                         fprintf('The initial value of PSNR = %2.4f, SSIM = %2.4f \n', csnr( par.nim*255, par.I*255, 0, 0 ),cal_ssim( par.nim*255, par.I*255, 0, 0 ));
                         % PGPD denoising
                         [im_out,par]  =  PGPD_Denoising(par,model);

@@ -5,7 +5,7 @@
 % Author:  Jun Xu, csjunxu@comp.polyu.edu.hk
 %              The Hong Kong Polytechnic University
 %------------------------------------------------------------------------------------------------
-function  [im_out,par] = PGPD_Denoising_Color(par,model)
+function  [im_out,par] = PGPD_Denoising(par,model)
 im_out = par.nim;
 par.nSig0 = par.nSig;
 [h, w, ch] = size(im_out);
@@ -28,20 +28,21 @@ for ite = 1 : par.IteNum
     % iterative regularization
     im_out = im_out + par.delta*(par.nim - im_out);
     % estimate noise variance of each channel
-    if ite == 1
-        par.nSig = par.nSig0;
-    else
-        for c = 1:ch
+    sigma2I = zeros(par.ps2ch,1);
+    for c = 1:ch
+        if ite == 1
+            par.nSig(c) = par.nSig0(c);
+        else
             dif = mean( mean( (par.nim(:,:,c) - im_out(:,:,c)).^2 ) ) ;
             par.nSig(c) = sqrt( abs( par.nSig0(c)^2 - dif ) )*par.eta(c);
         end
+        sigma2I((c-1)*par.ps2+1:c*par.ps2,1) = par.nSig(c)^2*ones(par.ps2,1);
     end
     % search non-local patch groups
     [nDCnlX,blk_arr,DC,par] = CalNonLocal( im_out, par);
     % Gaussian dictionary selection by MAP
     if mod(ite-1,2) == 0
         PYZ = zeros(model.nmodels,size(DC,2)/par.nlsp);
-        sigma2I = [par.nSig(1)^2*ones(par.ps2,1);par.nSig(2)^2*ones(par.ps2,1);par.nSig(3)^2*ones(par.ps2,1)];
         for i = 1:model.nmodels
             sigma = model.covs(:,:,i) + diag(sigma2I);
             [R,~] = chol(sigma);
@@ -70,16 +71,16 @@ for ite = 1 : par.IteNum
         cls =   dicidx(idx(1));
         D   =   par.D(:,:, cls);
         S    = par.S(:,cls);
-        lambdaM = repmat(par.c1*par.nSig^2./ (sqrt(S)+eps ),[1 length(idxs)]);
+        lambdaM = repmat(par.c1*sigma2I./ (sqrt(S)+eps ),[1 length(idxs)]);
         Y = nDCnlX(:,idxs);
         b = D'*Y;
         % soft threshold
         alpha = sign(b).*max(abs(b)-lambdaM/2,0);
         % add DC components and aggregation
         X_hat(:,blk_arr(:,idxs)) = X_hat(:,blk_arr(:,idxs))+bsxfun(@plus,D*alpha, DC(:,idxs));
-        W(:,blk_arr(:,idxs)) = W(:,blk_arr(:,idxs))+ones(par.ps2, length(idxs));
+        W(:,blk_arr(:,idxs)) = W(:,blk_arr(:,idxs))+ones(par.ps2ch, length(idxs));
     end
-    % Reconstruction   
+    % Reconstruction
     im_out = zeros(h,w,ch,'single');
     im_wei = zeros(h,w,ch,'single');
     r = 1:par.maxr;
