@@ -1,4 +1,4 @@
-function       [nDCnlX,blk_arr,DC,par] = CalNonLocal( im, par )
+function       [nDCnlX,blk_arr,DC,par] = Image2PG( im, par)
 % record the non-local patch set and the index of each patch in
 % of seed patches in image
 im = single(im);

@@ -29,7 +29,7 @@ for ite = 1 : par.IteNum
         par.nSig = sqrt( abs( par.nSig0^2 - dif ) )*par.eta;
     end
     % search non-local patch groups
-    [nDCnlX,blk_arr,DC,par] = Image2PGs( im_out, par);
+    [nDCnlX,blk_arr,DC,par] = Image2PG( im_out, par);
     % Gaussian dictionary selection by MAP
         if mod(ite-1,2) == 0
         %% GMM: full posterior calculation

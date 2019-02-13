@@ -39,7 +39,7 @@ for ite = 1 : par.IteNum
         sigma2I((c-1)*par.ps2+1:c*par.ps2,1) = par.nSig(c)^2*ones(par.ps2,1);
     end
     % search non-local patch groups
-    [nDCnlX,blk_arr,DC,par] = CalNonLocal( im_out, par);
+    [nDCnlX,blk_arr,DC,par] = Image2PG( im_out, par);
     % Gaussian dictionary selection by MAP
     if mod(ite-1,2) == 0
         PYZ = zeros(model.nmodels,size(DC,2)/par.nlsp);
