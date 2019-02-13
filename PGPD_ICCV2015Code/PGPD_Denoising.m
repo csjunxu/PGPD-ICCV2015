@@ -5,7 +5,7 @@
 % Author:  Jun Xu, csjunxu@comp.polyu.edu.hk
 %              The Hong Kong Polytechnic University
 %------------------------------------------------------------------------------------------------
-function  [im_out,par] = PGPD_Denoising(par,model)
+function  [im_out,par] = PGPD_Denoising_Color(par,model)
 im_out = par.nim;
 par.nSig0 = par.nSig;
 [h, w, ch] = size(im_out);
@@ -23,24 +23,27 @@ par.lenr = length(par.r);
 par.lenc = length(par.c);
 par.lenrc = par.lenr*par.lenc;
 par.ps2 = par.ps^2;
+par.ps2ch = par.ps2*par.ch;
 for ite = 1 : par.IteNum
     % iterative regularization
     im_out = im_out + par.delta*(par.nim - im_out);
-    % estimation of noise variance
+    % estimate noise variance of each channel
     if ite == 1
         par.nSig = par.nSig0;
     else
-        dif = mean( mean( (par.nim - im_out).^2 ) ) ;
-        par.nSig = sqrt( abs( par.nSig0^2 - dif ) )*par.eta;
+        for c = 1:ch
+            dif = mean( mean( (par.nim(:,:,c) - im_out(:,:,c)).^2 ) ) ;
+            par.nSig(c) = sqrt( abs( par.nSig0(c)^2 - dif ) )*par.eta(c);
+        end
     end
     % search non-local patch groups
     [nDCnlX,blk_arr,DC,par] = CalNonLocal( im_out, par);
     % Gaussian dictionary selection by MAP
     if mod(ite-1,2) == 0
         PYZ = zeros(model.nmodels,size(DC,2)/par.nlsp);
-        sigma2I = par.nSig^2*eye(par.ps2);
+        sigma2I = [par.nSig(1)^2*ones(par.ps2,1);par.nSig(2)^2*ones(par.ps2,1);par.nSig(3)^2*ones(par.ps2,1)];
         for i = 1:model.nmodels
-            sigma = model.covs(:,:,i) + sigma2I;
+            sigma = model.covs(:,:,i) + diag(sigma2I);
             [R,~] = chol(sigma);
             Q = R'\nDCnlX;
             TempPYZ = - sum(log(diag(R))) - dot(Q,Q,1)/2;
@@ -56,8 +59,8 @@ for ite = 1 : par.IteNum
         seg = [0; seq; length(dicidx)];
     end
     % Weighted Sparse Coding
-    X_hat = zeros(par.ps2,par.maxrc,'single');
-    W = zeros(par.ps2,par.maxrc,'single');
+    X_hat = zeros(par.ps2ch,par.maxrc,'single');
+    W = zeros(par.ps2ch,par.maxrc,'single');
     for j = 1:length(seg)-1
         idx =   s_idx(seg(j)+1:seg(j+1));
         idxs = [];
@@ -76,17 +79,19 @@ for ite = 1 : par.IteNum
         X_hat(:,blk_arr(:,idxs)) = X_hat(:,blk_arr(:,idxs))+bsxfun(@plus,D*alpha, DC(:,idxs));
         W(:,blk_arr(:,idxs)) = W(:,blk_arr(:,idxs))+ones(par.ps2, length(idxs));
     end
-    % Reconstruction
-    im_out = zeros(h,w,'single');
-    im_wei = zeros(h,w,'single');
+    % Reconstruction   
+    im_out = zeros(h,w,ch,'single');
+    im_wei = zeros(h,w,ch,'single');
     r = 1:par.maxr;
     c = 1:par.maxc;
     k = 0;
-    for i = 1:par.ps
-        for j = 1:par.ps
-            k = k+1;
-            im_out(r-1+i,c-1+j)  =  im_out(r-1+i,c-1+j) + reshape( X_hat(k,:)', [par.maxr par.maxc]);
-            im_wei(r-1+i,c-1+j)  =  im_wei(r-1+i,c-1+j) + reshape( W(k,:)', [par.maxr par.maxc]);
+    for l = 1:1:par.ch
+        for i = 1:par.ps
+            for j = 1:par.ps
+                k = k+1;
+                im_out(r-1+i, c-1+j, l)  =  im_out(r-1+i, c-1+j, l) + reshape( X_hat(k,:)', [par.maxr par.maxc] );
+                im_wei(r-1+i, c-1+j, l)  =  im_wei(r-1+i, c-1+j, l) + reshape( W(k,:)', [par.maxr par.maxc] );
+            end
         end
     end
     im_out  =  im_out./im_wei;

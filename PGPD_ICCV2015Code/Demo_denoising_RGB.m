@@ -64,7 +64,7 @@ for delta = 0
                         end
                         fprintf('The initial value of PSNR = %2.4f, SSIM = %2.4f \n', csnr( par.nim*255, par.I*255, 0, 0 ),cal_ssim( par.nim*255, par.I*255, 0, 0 ));
                         % PGPD denoising
-                        [im_out,par]  =  PGPD_Denoising_Color(par,model);
+                        [im_out,par]  =  PGPD_Denoising(par,model);
                         % calculate the PSNR and SSIM
                         fprintf('Cameraman : PSNR = %2.4f, SSIM = %2.4f \n', csnr( im_out*255, par.I*255, 0, 0 ), cal_ssim( im_out*255, par.I*255, 0, 0 ) );
                     end
