@@ -59,8 +59,8 @@ for ite = 1 : par.IteNum
         seg = [0; seq; length(dicidx)];
     end
     % Weighted Sparse Coding
-    X_hat = zeros(par.ps2,par.maxrc,'single');
-    W = zeros(par.ps2,par.maxrc,'single');
+    X_hat = zeros(par.ps2ch,par.maxrc,'single');
+    W = zeros(par.ps2ch,par.maxrc,'single');
     for j = 1:length(seg)-1
         idx =   s_idx(seg(j)+1:seg(j+1));
         cls =   dicidx(idx(1));
@@ -77,23 +77,25 @@ for ite = 1 : par.IteNum
             W(:,blk_arr(:,idx(i))) = W(:,blk_arr(:,idx(i)))+ones(par.ps2,par.nlsp);
         end
     end
-    % Reconstruction
-    im_out = zeros(h,w,'single');
-    im_wei = zeros(h,w,'single');
+    % Reconstruction   
+    im_out = zeros(h,w,ch,'single');
+    im_wei = zeros(h,w,ch,'single');
     r = 1:par.maxr;
     c = 1:par.maxc;
     k = 0;
-    for i = 1:par.ps
-        for j = 1:par.ps
-            k = k+1;
-            im_out(r-1+i,c-1+j)  =  im_out(r-1+i,c-1+j) + reshape( X_hat(k,:)', [par.maxr par.maxc]);
-            im_wei(r-1+i,c-1+j)  =  im_wei(r-1+i,c-1+j) + reshape( W(k,:)', [par.maxr par.maxc]);
+    for l = 1:1:par.ch
+        for i = 1:par.ps
+            for j = 1:par.ps
+                k = k+1;
+                im_out(r-1+i, c-1+j, l)  =  im_out(r-1+i, c-1+j, l) + reshape( X_hat(k,:)', [par.maxr par.maxc] );
+                im_wei(r-1+i, c-1+j, l)  =  im_wei(r-1+i, c-1+j, l) + reshape( W(k,:)', [par.maxr par.maxc] );
+            end
         end
     end
     im_out  =  im_out./im_wei;
     % calculate the PSNR and SSIM
-    PSNR =   csnr( im_out*255, par.I*255, 0, 0 );
-    SSIM      =  cal_ssim( im_out*255, par.I*255, 0, 0 );
+    PSNR = csnr( im_out*255, par.I*255, 0, 0 );
+    SSIM = cal_ssim( im_out*255, par.I*255, 0, 0 );
     fprintf('Iter %d : PSNR = %2.4f, SSIM = %2.4f\n',ite, PSNR,SSIM);
 end
 im_out(im_out > 1) = 1;
