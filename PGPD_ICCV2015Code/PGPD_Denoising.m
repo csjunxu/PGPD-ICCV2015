@@ -42,18 +42,21 @@ for ite = 1 : par.IteNum
     [nDCnlX,blk_arr,DC,par] = Image2PG( im_out, par);
     % Gaussian dictionary selection by MAP
     if mod(ite-1,2) == 0
-        PYZ = zeros(model.nmodels,size(DC,2)/par.nlsp);
+        nPG = size(nDCnlX,2)/par.nlsp; % number of PGs
+        PYZ = zeros(model.nmodels,nPG);
         for i = 1:model.nmodels
             sigma = model.covs(:,:,i) + diag(sigma2I);
             [R,~] = chol(sigma);
             Q = R'\nDCnlX;
             TempPYZ = - sum(log(diag(R))) - dot(Q,Q,1)/2;
-            TempPYZ = reshape(TempPYZ,[par.nlsp size(DC,2)/par.nlsp]);
+            TempPYZ = reshape(TempPYZ,[par.nlsp nPG]);
             PYZ(i,:) = sum(TempPYZ);
         end
         % find the most likely component for each patch group
         [~,dicidx] = max(PYZ);
-        dicidx = dicidx';
+        %dicidx = dicidx';
+        dicidx=repmat(dicidx, [par.nlsp 1]);
+        dicidx = dicidx(:);
         [idx,  s_idx] = sort(dicidx);
         idx2 = idx(1:end-1) - idx(2:end);
         seq = find(idx2);
@@ -64,21 +67,17 @@ for ite = 1 : par.IteNum
     W = zeros(par.ps2ch,par.maxrc,'single');
     for j = 1:length(seg)-1
         idx =   s_idx(seg(j)+1:seg(j+1));
-        idxs = [];
-        for i = 1:length(idx)
-            idxs = [idxs (idx(i)-1)*par.nlsp+1:idx(i)*par.nlsp];
-        end
         cls =   dicidx(idx(1));
         D   =   par.D(:,:, cls);
         S    = par.S(:,cls);
-        lambdaM = repmat(par.c1*sigma2I./ (sqrt(S)+eps ),[1 length(idxs)]);
-        Y = nDCnlX(:,idxs);
+        lambdaM = repmat(par.c1*sigma2I./(sqrt(S)+eps ),[1 length(idx)]);
+        Y = nDCnlX(:,idx);
         b = D'*Y;
         % soft threshold
         alpha = sign(b).*max(abs(b)-lambdaM/2,0);
         % add DC components and aggregation
-        X_hat(:,blk_arr(:,idxs)) = X_hat(:,blk_arr(:,idxs))+bsxfun(@plus,D*alpha, DC(:,idxs));
-        W(:,blk_arr(:,idxs)) = W(:,blk_arr(:,idxs))+ones(par.ps2ch, length(idxs));
+        X_hat(:,blk_arr(:,idx)) = X_hat(:,blk_arr(:,idx))+bsxfun(@plus,D*alpha, DC(:,idx));
+        W(:,blk_arr(:,idx)) = W(:,blk_arr(:,idx))+ones(par.ps2ch, length(idx));
     end
     % Reconstruction
     im_out = zeros(h,w,ch,'single');
