@@ -1,0 +1,78 @@
+%--------------------------------------------------------------------------------------------------
+% This is an implementation of the PGPD algorithm for image denoising.
+% Author:  Jun Xu, csjunxu@comp.polyu.edu.hk
+%              The Hong Kong Polytechnic University
+% Please refer to the following paper if you use this code:
+% Jun Xu, Lei Zhang, Wangmeng Zuo, David Zhang, and Xiangchu Feng,
+% Patch Group Based Nonlocal Self-Similarity Prior Learning for Image Denoising.
+% IEEE Int. Conf. Computer Vision (ICCV), Santiago, Chile, December 2015.
+% Please see the file License.txt for the license governing this code.
+%--------------------------------------------------------------------------------------------------
+clear;
+Original_image_dir  =    'kodak_color/';
+fpath = fullfile(Original_image_dir, '*.png');
+im_dir  = dir(fpath);
+im_num = length(im_dir);
+
+method = 'PGPD';
+dataset = 'kodak24';
+write_MAT_dir = ['/home/csjunxu/Github/PGPD/' dataset '_Results/'];
+write_sRGB_dir = [write_MAT_dir method];
+if ~isdir(write_sRGB_dir)
+    mkdir(write_sRGB_dir)
+end
+
+nSig = [40 20 30];
+
+% fixed parameters
+par.step   = 3;    % the step of two neighbor patches
+par.IteNum = 4;  % the iteration number
+par.nSig   = nSig/255;
+load './model/PG_GMM_6x6_win15_nlsp10_delta0.002_cls65.mat';
+par.ps = ps;        % patch size
+par.nlsp = nlsp;  % number of non-local patches
+par.Win = win;   % size of window around the patch
+% dictionary and regularization parameter
+for i = 1:size(GMM_D,2)
+    par.D(:,:,i) = reshape(single(GMM_D(:, i)), size(GMM_S,1), size(GMM_S,1));
+end
+par.S = single(GMM_S);
+
+% tunable parameters
+
+for delta = 0
+par.delta = delta;
+for c1 = .1:.1:1
+    par.c1 = c1*2*sqrt(2);
+    for eta = .1:.1:1
+par.eta=eta;
+
+% record all the results in each iteration
+Par.PSNR = zeros(Par.Iter, im_num, 'single');
+Par.SSIM = zeros(Par.Iter, im_num, 'single');
+for i = 1:im_num
+    Par.nSig0 = nSig;
+    % set parameters
+    % [par, model]  =  Parameters_Setting( nSig );
+    % read clean image
+    Par.I =  double( imread(fullfile(Original_image_dir, im_dir(i).name)) );
+    S = regexp(im_dir(i).name, '\.', 'split');
+    [h, w, ch] = size(Par.I);
+    % generate noisy image
+    Par.nim = zeros(size(Par.I));
+    for c = 1:ch
+        randn('seed',0);
+        Par.nim(:, :, c) = Par.I(:, :, c) + Par.nSig0(c) * randn(size(Par.I(:, :, c)));
+    end
+    fprintf('The initial value of PSNR = %2.4f, SSIM = %2.4f \n', csnr( par.nim*255, par.I*255, 0, 0 ),cal_ssim( par.nim*255, par.I*255, 0, 0 ));
+    % PGPD denoising
+    [im_out,par]  =  PGPD_Denoising_Color(par,model);
+    % calculate the PSNR and SSIM
+    fprintf('Cameraman : PSNR = %2.4f, SSIM = %2.4f \n', csnr( im_out*255, par.I*255, 0, 0 ), cal_ssim( im_out*255, par.I*255, 0, 0 ) );
+end
+PSNR = Par.PSNR(end,:);
+SSIM = Par.SSIM(end,:);
+mPSNR=mean(PSNR,2);
+mSSIM=mean(SSIM,2);
+matname = sprintf([write_MAT_dir method '_' dataset '.mat']);
+save(matname,'PSNR','SSIM','mPSNR','mSSIM');

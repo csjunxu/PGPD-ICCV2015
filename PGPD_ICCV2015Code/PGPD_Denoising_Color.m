@@ -5,7 +5,7 @@
 % Author:  Jun Xu, csjunxu@comp.polyu.edu.hk
 %              The Hong Kong Polytechnic University
 %------------------------------------------------------------------------------------------------
-function  [im_out,par] = PGPD_Denoising(par,model)
+function  [im_out,par] = PGPD_Denoising_Color(par,model)
 im_out = par.nim;
 par.nSig0 = par.nSig;
 [h, w, ch] = size(im_out);
@@ -23,24 +23,27 @@ par.lenr = length(par.r);
 par.lenc = length(par.c);
 par.lenrc = par.lenr*par.lenc;
 par.ps2 = par.ps^2;
+par.ps2ch = par.ps2*par.ch;
 for ite = 1 : par.IteNum
     % iterative regularization
     im_out = im_out + par.delta*(par.nim - im_out);
-    % estimation of noise variance
+    % estimate noise variance of each channel
     if ite == 1
         par.nSig = par.nSig0;
     else
-        dif = mean( mean( (par.nim - im_out).^2 ) ) ;
-        par.nSig = sqrt( abs( par.nSig0^2 - dif ) )*par.eta;
+        for c = 1:ch
+            dif = mean( mean( (par.nim(:,:,c) - im_out(:,:,c)).^2 ) ) ;
+            par.nSig(c) = sqrt( abs( par.nSig0(c)^2 - dif ) )*par.eta(c);
+        end
     end
     % search non-local patch groups
     [nDCnlX,blk_arr,DC,par] = CalNonLocal( im_out, par);
     % Gaussian dictionary selection by MAP
     if mod(ite-1,2) == 0
         PYZ = zeros(model.nmodels,size(DC,2)/par.nlsp);
-        sigma2I = par.nSig^2*eye(par.ps2);
+        sigma2I = [par.nSig(1)^2*ones(par.ps2,1);par.nSig(2)^2*ones(par.ps2,1);par.nSig(3)^2*ones(par.ps2,1)];
         for i = 1:model.nmodels
-            sigma = model.covs(:,:,i) + sigma2I;
+            sigma = model.covs(:,:,i) + diag(sigma2I);
             [R,~] = chol(sigma);
             Q = R'\nDCnlX;
             TempPYZ = - sum(log(diag(R))) - dot(Q,Q,1)/2;
@@ -60,21 +63,19 @@ for ite = 1 : par.IteNum
     W = zeros(par.ps2,par.maxrc,'single');
     for j = 1:length(seg)-1
         idx =   s_idx(seg(j)+1:seg(j+1));
-        idxs = [];
-        for i = 1:length(idx)
-            idxs = [idxs (idx(i)-1)*par.nlsp+1:idx(i)*par.nlsp];
-        end
         cls =   dicidx(idx(1));
         D   =   par.D(:,:, cls);
         S    = par.S(:,cls);
-        lambdaM = repmat(par.c1*par.nSig^2./ (sqrt(S)+eps ),[1 length(idxs)]);
-        Y = nDCnlX(:,idxs);
-        b = D'*Y;
-        % soft threshold
-        alpha = sign(b).*max(abs(b)-lambdaM/2,0);
-        % add DC components and aggregation
-        X_hat(:,blk_arr(:,idxs)) = X_hat(:,blk_arr(:,idxs))+bsxfun(@plus,D*alpha, DC(:,idxs));
-        W(:,blk_arr(:,idxs)) = W(:,blk_arr(:,idxs))+ones(par.ps2, length(idxs));
+        lambdaM = repmat(par.c1*par.nSig^2./ (sqrt(S)+eps ),[1 par.nlsp]);
+        for i = 1:size(idx,1)
+            Y = nDCnlX(:,(idx(i)-1)*par.nlsp+1:idx(i)*par.nlsp);
+            b = D'*Y;
+            % soft threshold
+            alpha = sign(b).*max(abs(b)-lambdaM/2,0);
+            % add DC components and aggregation
+            X_hat(:,blk_arr(:,idx(i))) = X_hat(:,blk_arr(:,idx(i)))+bsxfun(@plus,D*alpha, DC(:,idx(i)));
+            W(:,blk_arr(:,idx(i))) = W(:,blk_arr(:,idx(i)))+ones(par.ps2,par.nlsp);
+        end
     end
     % Reconstruction
     im_out = zeros(h,w,'single');
@@ -91,8 +92,8 @@ for ite = 1 : par.IteNum
     end
     im_out  =  im_out./im_wei;
     % calculate the PSNR and SSIM
-    PSNR = csnr( im_out*255, par.I*255, 0, 0 );
-    SSIM = cal_ssim( im_out*255, par.I*255, 0, 0 );
+    PSNR =   csnr( im_out*255, par.I*255, 0, 0 );
+    SSIM      =  cal_ssim( im_out*255, par.I*255, 0, 0 );
     fprintf('Iter %d : PSNR = %2.4f, SSIM = %2.4f\n',ite, PSNR,SSIM);
 end
 im_out(im_out > 1) = 1;
