@@ -41,15 +41,15 @@ par.S = single(GMM_S);
 % tunable parameters
 for delta = 0
     par.delta = delta;
-    for c1 = .6:.1:1.5
+    for c1 = .6:.2:2
         par.c1 = c1;
-        for etaR = 1
-            for etaG = 1
-                for etaB = 1:-.1:.1
+        for etaR = [1 .9 1.1 .8 1.2]
+            for etaG = [.7 .8 .6 .9 .5]
+                for etaB = [.9 .8 1 .7 1.1]
                     par.eta=[etaR etaG etaB];
                     % record all the results in each iteration
-                    par.PSNR = zeros(par.IteNum, im_num, 'single');
-                    par.SSIM = zeros(par.IteNum, im_num, 'single');
+                    PSNR = zeros(1, im_num, 'single');
+                    SSIM = zeros(1, im_num, 'single');
                     for i = 1:im_num
                         par.nSig0 = nSig/255;
                         % read clean image
@@ -61,18 +61,18 @@ for delta = 0
                         for c = 1:ch
                             randn('seed',0);
                             par.nim(:, :, c) = par.I(:, :, c) + par.nSig0(c) * randn(size(par.I(:, :, c)));
-                        end 
+                        end
                         fprintf('Initial PSNR = %2.4f, SSIM = %2.4f \n', csnr( par.nim*255, par.I*255, 0, 0 ),cal_ssim( par.nim*255, par.I*255, 0, 0 ));
                         % PGPD denoising
                         [im_out,par]  =  PGPD_Denoising(par,model);
                         % calculate the PSNR and SSIM
-                        fprintf('Denoised PSNR = %2.4f, SSIM = %2.4f \n', csnr( im_out*255, par.I*255, 0, 0 ), cal_ssim( im_out*255, par.I*255, 0, 0 ) );
+                        PSNR(i) = csnr( im_out*255, par.I*255, 0, 0 );
+                        SSIM(i) = cal_ssim( im_out*255, par.I*255, 0, 0 );
+                        fprintf('Denoised PSNR = %2.4f, SSIM = %2.4f\n',PSNR(i),SSIM(i));
                     end
-                    PSNR = par.PSNR(end,:);
-                    SSIM = par.SSIM(end,:);
                     mPSNR=mean(PSNR,2);
                     mSSIM=mean(SSIM,2);
-                    matname = sprintf([write_MAT_dir method '_' dataset '_' ... 
+                    matname = sprintf([write_MAT_dir method '_' dataset '_' ...
                         num2str(c1) '_' num2str(etaR) '_' num2str(etaG) '_' num2str(etaB) '.mat']);
                     save(matname,'PSNR','SSIM','mPSNR','mSSIM');
                 end
