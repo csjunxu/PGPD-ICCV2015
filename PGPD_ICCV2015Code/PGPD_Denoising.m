@@ -1,9 +1,9 @@
 %------------------------------------------------------------------------------------------------
 % PGPD_Denoising - Denoising by Weighted Sparse Coding
 %                                with Learned Patch Group Prior.
-% CalNonLocal - Calculate the non-local similar patches (Noisy Patch Groups)
+% Image2PG - Calculate the non-local similar patches (Noisy Patch Groups)
 % Author:  Jun Xu, csjunxu@comp.polyu.edu.hk
-%              The Hong Kong Polytechnic University
+%          The Hong Kong Polytechnic University
 %------------------------------------------------------------------------------------------------
 function  [im_out,par] = PGPD_Denoising(par,model)
 im_out = par.nim;
