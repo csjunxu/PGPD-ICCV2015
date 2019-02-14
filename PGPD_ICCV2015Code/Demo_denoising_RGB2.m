@@ -18,7 +18,7 @@ nSig = [40 20 30];
 par.step   = 3;    % the step of two neighbor patches
 par.IteNum = 4;  % the iteration number
 par.nSig   = nSig/255;
-load '/home/csjunxu/Github/PGPD_Results/PGGMM Models/RGB/PG_GMM_RGB_8x8_win30_nlsp10_delta0.002_cls17.mat';
+load '/home/csjunxu/Github/PGPD_Results/PGGMM Models/RGB/PG_GMM_RGB_8x8_win30_nlsp10_delta0.002_cls513.mat';
 par.ps = ps;        % patch size
 par.nlsp = nlsp;  % number of non-local patches
 par.Win = win;   % size of window around the patch
