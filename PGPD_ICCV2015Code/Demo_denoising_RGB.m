@@ -70,9 +70,9 @@ for delta = 0
                         SSIM(i) = cal_ssim( im_out*255, par.I*255, 0, 0 );
                         fprintf('Denoised PSNR = %2.4f, SSIM = %2.4f\n',PSNR(i),SSIM(i));
                     end
-                    mPSNR=mean(PSNR,2);
-                    mSSIM=mean(SSIM,2);
-                    matname = sprintf([write_MAT_dir method '_' dataset '_' ...
+                    mPSNR=mean(PSNR);
+                    mSSIM=mean(SSIM);
+                    matname = sprintf([write_MAT_dir method '_' num2str(cls_num) '_' dataset '_' ...
                         num2str(c1) '_' num2str(etaR) '_' num2str(etaG) '_' num2str(etaB) '.mat']);
                     save(matname,'PSNR','SSIM','mPSNR','mSSIM');
                 end
