@@ -7,7 +7,6 @@
 %------------------------------------------------------------------------------------------------
 function  [im_out,par] = PGPD_Denoising(par,model)
 im_out = par.nim;
-par.nSig0 = par.nSig;
 [h, w, ch] = size(im_out);
 par.maxr = h-par.ps+1;
 par.maxc = w-par.ps+1;
