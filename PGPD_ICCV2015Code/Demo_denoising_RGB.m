@@ -43,9 +43,9 @@ for delta = 0
     par.delta = delta;
     for c1 = .6:.2:2
         par.c1 = c1;
-        for etaR = [1 .9 1.1 .8 1.2]
-            for etaG = [.7 .8 .6 .9 .5]
-                for etaB = [.9 .8 1 .7 1.1]
+        for etaR = [1 .9 1.1]
+            for etaG = [.7 .8 .6]
+                for etaB = [.9 1 1.1]
                     par.eta=[etaR etaG etaB];
                     % record all the results in each iteration
                     PSNR = zeros(1, im_num, 'single');
