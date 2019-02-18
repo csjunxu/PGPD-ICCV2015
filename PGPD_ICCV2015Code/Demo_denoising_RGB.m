@@ -41,7 +41,7 @@ par.S = single(GMM_S);
 % tunable parameters
 for delta = 0
     par.delta = delta;
-    for c1 = .6:.2:2
+    for c1 = .8:.2:2
         par.c1 = c1;
         for etaR = [1 .9 1.1]
             for etaG = [.7 .8 .6]
