@@ -13,22 +13,22 @@ Px0 = [];
 Px = [];
 if nlsp ==1
     k    =  0;
-    for c = 1:ch
+    for l = 1:ch
         for i = 1:ps
             for j  = 1:ps
                 k    =  k+1;
-                blk     =  im(r-1+i,c-1+j,c);
+                blk     =  im(r-1+i,c-1+j,l);
                 Px(k,:) =  blk(:)';
             end
         end
     end
 else
     k    =  0;
-    for c = 1:ch
+    for l = 1:ch
         for i  = 1:ps
             for j  = 1:ps
                 k    =  k+1;
-                blk  =  im(i:end-ps+i,j:end-ps+j,c);
+                blk  =  im(i:end-ps+i,j:end-ps+j,l);
                 X(k,:) =  blk(:)';
             end
         end
