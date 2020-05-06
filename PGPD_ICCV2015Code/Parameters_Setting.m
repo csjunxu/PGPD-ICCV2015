@@ -2,7 +2,7 @@ function  [par, model]  =  Parameters_Setting( nSig )
 
 par.step = 3;       % the step of two neighbor patches
 par.IteNum = 4;  % the iteration number
-par.nSig      =   nSig/255;
+par.nSig0      =   nSig/255;
 
 if nSig <= 10
     load './model/PG_GMM_6x6_win15_nlsp10_delta0.002_cls65.mat';
