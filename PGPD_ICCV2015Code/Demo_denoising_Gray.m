@@ -16,7 +16,7 @@ nSig = 50;
 par.I = single( imread('cameraman.png') )/255;
 % generate noisy image
 randn('seed',0);
-par.nim =   par.I + par.nSig*randn(size(par.I));
+par.nim =   par.I + par.nSig0*randn(size(par.I));
 fprintf('The initial value of PSNR = %2.4f, SSIM = %2.4f \n', csnr( par.nim*255, par.I*255, 0, 0 ),cal_ssim( par.nim*255, par.I*255, 0, 0 ));
 % PGPD denoising
 [im_out,par]  =  PGPD_Denoising(par,model);
